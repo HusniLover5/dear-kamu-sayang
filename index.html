@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dear Kamu 🤍</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:radial-gradient(circle at top,#2a2a4f,#0b0b1f 60%,#050510);
+  overflow:hidden;
+  color:white;
+}
+
+/* AMPLOP */
+#envelopeScreen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle,#3a235a,#050510);
+  z-index:10;
+}
+.envelope{
+  width:200px;
+  height:140px;
+  background:#fff;
+  border-radius:16px;
+  position:relative;
+  cursor:pointer;
+}
+.envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:#ff5fa2;
+  clip-path:polygon(0 0,100% 0,50% 70%);
+}
+.envelope span{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:40px;
+  animation:beat 1s infinite;
+}
+
+.fadeOut{
+  animation:fade 1.6s forwards;
+}
+@keyframes fade{
+  to{opacity:0;transform:scale(1.4)}
+}
+
+/* MAIN */
+#main{
+  display:none;
+  height:100vh;
+  justify-content:center;
+  align-items:center;
+}
+.container{
+  display:flex;
+  align-items:flex-start;
+  gap:30px;
+}
+
+/* KARTUN */
+.kartun{
+  width:170px;
+  animation:float 3s ease-in-out infinite;
+}
+.kiri{order:-1}
+.kanan{order:1}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+
+/* TEXT */
+.text-box{
+  background:rgba(255,255,255,.1);
+  padding:22px 26px;
+  border-radius:18px;
+  max-width:540px;
+  line-height:1.9;
+  box-shadow:0 0 20px rgba(255,95,162,.3);
+  backdrop-filter:blur(6px);
+}
+
+/* BUTTON */
+.btn-area{text-align:center;margin-top:18px}
+button{
+  padding:10px 36px;
+  border:none;
+  border-radius:25px;
+  font-size:16px;
+  background:#ff5fa2;
+  color:white;
+  cursor:pointer;
+}
+
+/* LOVE HUJAN */
+.love{
+  position:fixed;
+  top:-40px;
+  font-size:28px;
+  color:#ff5fa2;
+  z-index:9999;
+  animation:
+    fall 6s linear forwards,
+    beat 1s infinite,
+    blink 1.2s infinite;
+  pointer-events:none;
+  text-shadow:0 0 12px #ff8fc4;
+}
+
+@keyframes fall{
+  to{transform:translateY(110vh);opacity:0}
+}
+@keyframes beat{
+  50%{transform:scale(1.4)}
+}
+@keyframes blink{
+  50%{opacity:.4}
+}
+
+/* LEDAKAN LOVE */
+.burst-love{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:40px;
+  animation:burst 1.8s ease-out forwards;
+  pointer-events:none;
+  z-index:10000;
+}
+@keyframes burst{
+  to{
+    opacity:0;
+    transform:translate(
+      calc(-50% + var(--x)),
+      calc(-50% + var(--y))
+    ) scale(1.4);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+  <source src="stevan-pasaribu-belum-siap-kehilangan.mp3" type="audio/mpeg">
+</audio>
+
+<div id="envelopeScreen" onclick="openEnvelope()">
+  <div class="envelope">
+    <span>❤️</span>
+  </div>
+</div>
+
+<div id="main">
+  <div class="container">
+    <img id="cartunImg" class="kartun kiri" src="gambar kartun/kartun1.gif">
+
+    <div>
+      <div id="text" class="text-box"></div>
+      <div class="btn-area">
+        <button id="nextBtn" onclick="nextText()">Selanjutnya 🤍</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const texts=[
+"Dear kamu,<br><br>Dengan sadar aku menulis ini, barangkali suatu hari kalau kita nggak bisa bersama dan aku sudah nggak ada di sampingmu. Bukan untuk membuatmu sedih, tapi supaya kamu tahu: pernah ada seseorang yang mencintaimu dengan sungguh-sungguh.",
+"Terima kasih sudah hadir di hidupku. Kamu datang membawa hangat, mengajarkanku arti pulang, dan membuat hari-hariku punya makna. Dari caramu tersenyum, dari perhatian kecil yang sering kamu anggap biasa, aku menemukan rasa tenang dan keutuhan rasa.",
+"Jika kelak jarak atau keadaan memisahkan kita, semoga kenangan tentang kita tetap tinggal dengan lembut, bukan luka. Jika nanti aku hanya tinggal cerita, ingatlah: kamu pernah menjadi alasan aku bertahan, tertawa, dan percaya pada cinta.",
+"Kalau suatu hari kamu kangen aku dan aku sudah tak bisa kamu temui, dengarkanlah lagu China《下輩子早點相遇》(Xià bèi zi zǎo diǎn xiāng yù) “Di kehidupan selanjutnya, semoga kita bertemu lebih awal.”. Biarkan suaranya mewakili rindu yang tak sempat sampai, dan harapan kecilku: semoga di kehidupan lain, kita dipertemukan lebih awal.",
+"Jaga dirimu baik-baik, ya. Bahagialah, meski tanpa aku. Karena melihatmu bahagia—bahkan dari jauh—akan selalu jadi doaku.",
+"Dengan rasa yang tulus,<br>Dari Kekasih Kamu<br><b>HUSNI ❤️</b>"
+];
+
+const images=[
+"gambar kartun/kartun1.gif",
+"gambar kartun/kartun2.gif",
+"gambar kartun/kartun3.gif",
+"gambar kartun/kartun4.gif",
+"gambar kartun/kartun5.gif",
+"gambar kartun/kartun6.gif"
+];
+
+let step=0, typing;
+const box=text=document.getElementById("text");
+const img=document.getElementById("cartunImg");
+const btn=document.getElementById("nextBtn");
+
+function spawnLove(){
+  const l=document.createElement("div");
+  l.className="love";
+  l.innerHTML="❤️";
+  l.style.left=Math.random()*100+"vw";
+  document.body.appendChild(l);
+  setTimeout(()=>l.remove(),6000);
+}
+
+setInterval(spawnLove,350);
+
+function typeText(html){
+  clearInterval(typing);
+  box.innerHTML="";
+  let temp=document.createElement("div");
+  temp.innerHTML=html;
+  let text=temp.innerText;
+  let i=0;
+
+  typing=setInterval(()=>{
+    box.innerHTML=text.slice(0,i);
+    spawnLove();spawnLove();
+    if(i++>text.length) clearInterval(typing);
+  },35);
+}
+
+function loveExplosion(){
+  for(let i=0;i<60;i++){
+    const love=document.createElement("div");
+    love.className="burst-love";
+    love.innerHTML="❤️";
+    love.style.setProperty("--x",(Math.random()*700-350)+"px");
+    love.style.setProperty("--y",(Math.random()*700-350)+"px");
+    document.body.appendChild(love);
+    setTimeout(()=>love.remove(),1800);
+  }
+}
+
+function openEnvelope(){
+  document.getElementById("music").play().catch(()=>{});
+  envelopeScreen.classList.add("fadeOut");
+  setTimeout(()=>{
+    envelopeScreen.style.display="none";
+    main.style.display="flex";
+    nextText();
+  },1500);
+}
+
+function nextText(){
+  if(step<texts.length){
+    img.src=images[step];
+    img.className="kartun "+(step%2?"kanan":"kiri");
+    typeText(texts[step]);
+    step++;
+
+    if(step===texts.length){
+      btn.innerText="Selamanya 🤍";
+      setTimeout(()=>{
+        loveExplosion();
+        for(let i=0;i<40;i++) setTimeout(spawnLove,i*80);
+      },1500);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
